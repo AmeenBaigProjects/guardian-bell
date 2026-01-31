@@ -1,0 +1,20 @@
+CERN Open Hardware Licence Version 2 - Permissive
+
+Copyright © 2025 ORCA
+
+This project, titled "SmartDoorbell", including all associated 
+designs, documentation, and hardware descriptions, is licensed under the 
+CERN Open Hardware Licence Version 2 - Permissive (CERN-OHL-P).
+
+You may use, copy, modify, distribute, and make products based on this 
+documentation and design, provided that you include the notice above and 
+this license text in any copies or derived works.
+
+The information and designs provided are offered "as is" and without any 
+express or implied warranties, including, without limitation, the implied 
+warranties of merchantability, fitness for a particular purpose, or 
+non-infringement. The licensor shall not be liable for any damages arising 
+from the use of this project or its associated materials.
+
+For full details of the CERN Open Hardware Licence v2 - Permissive, visit:
+https://ohwr.org/cern_ohl_p_v2.txt
