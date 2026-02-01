@@ -8,7 +8,8 @@
 #include "PubSubClient.h"
 #include <time.h>
 #include <HTTPClient.h>
-#include "secrets.h"    // check secrets_example.h for reference
+#include "secrets.h"    // secrets_example.h for reference
+#include "settings.h"
 
 
 // ===== debug configuration =====
@@ -25,74 +26,6 @@
   #define DBG_PRINTLN(x)
   #define DBG_DELAY(X)
 #endif
-
-
-// === ESP32-CAM pin configuration ===
-// source pin to wake ESP32-CAM from deep-sleep
-const int WAKE_PIN = 4;
-
-// I2C pins
-const int SDA_PIN = 13;          // I2C SDA to MCP23X17
-const int SCL_PIN = 12;          // I2C SCL to MCP23X17
-
-// camera pins
-#define PWDN_GPIO_NUM 32
-#define RESET_GPIO_NUM -1
-#define XCLK_GPIO_NUM 0
-#define SIOD_GPIO_NUM 26
-#define SIOC_GPIO_NUM 27
-#define Y9_GPIO_NUM 35
-#define Y8_GPIO_NUM 34
-#define Y7_GPIO_NUM 39
-#define Y6_GPIO_NUM 36
-#define Y5_GPIO_NUM 21
-#define Y4_GPIO_NUM 19
-#define Y3_GPIO_NUM 18
-#define Y2_GPIO_NUM 5
-#define VSYNC_GPIO_NUM 25
-#define HREF_GPIO_NUM 23
-#define PCLK_GPIO_NUM 22
-
-
-// === MCP23017 configuration ===
-Adafruit_MCP23X17 mcp;
-
-// wake & input sources
-const int BTN_PIN = 0;          // push button input
-const int PIR_PIN = 1;          // PIR input
-
-// peripherals
-const int RED_LED_PIN   = 3;    // external red LED
-const int BLUE_LED_PIN  = 4;    // external blue LED
-const int BUZZER_PIN  = 5;      // piezo buzzer
-
-
-// === time configuration ===
-const char* ntpServer = "uk.pool.ntp.org";
-const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
-
-
-// === filename of image captured at latest doorbell ring ===
-const String latestRingCapture_filename = "latest_ring_capture";
-
-
-// === time variables ===
-unsigned long boot_startTime            = 0;  // time at start of boot
-unsigned long initPIR_startTime         = 0;  // time at start of PIR initialsation
-unsigned long lastAction_endTime        = 0;  // time when last action ended
-unsigned long lastRing_endTime          = 0;
-unsigned long surveillance_startTime    = 0; // time at start of surveillance
-
-const unsigned long surveillancePeriod  = 10000; // allowed suveillance duration
-const unsigned long initPIR_period      = 30000; // duration of initialising PIR sensor
-const unsigned long standbyPeriod       = 200000; // allowed standby duration
-const unsigned long gapSince_lastRing   = 2000;
-
-
-// === MQTT Setup ===
-WiFiClient wifiClient;
-PubSubClient mqtt(wifiClient);
 
 
 // === blink infinitely ===
@@ -203,7 +136,7 @@ void initWifi() {
 }
 
 
-
+// === sync with current time ===
 void initTime() {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
@@ -299,81 +232,91 @@ void captureAndSaveImage(String filename = getCurrentTimeString()) {
 }
 
 
+void sendImageToTelegram() {
+    // --- skip certificate validation ---
+    telegramClient.setInsecure();
 
-void sendPhotoToTelegram() {
+    // --- open latest ring capture JPEG ---
     File file = SD_MMC.open("/IMG_" + latestRingCapture_filename + ".jpg");
-
     if (!file) {
-        DBG_PRINTLN("Failed to open image file for Telegram");
-        return;
+        DBG_PRINTLN("ERROR: Failed to open JPEG");
+        while(1);
+    }
+    else {
+        DBG_PRINTLN("Opened JPEG: " + String(file.name()));
     }
 
-    String captionText = "🔔 Someone's at the door!";
-    DBG_PRINTLN("Sending photo to Telegram...");
-
-    WiFiClientSecure client;
-    client.setInsecure(); // skip certificate validation
-
+    // --- URL endpoint ---
     String url = "/bot" + String(TELEGRAM_BOT_TOKEN) + "/sendPhoto";
+
+    // --- multipart boundary ---
     String boundary = "----ESP32CAMBoundary";
 
-    // Build multipart body (start)
+    // --- build multipart body ---
     String head =
         "--" + boundary + "\r\n"
         "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n" +
         String(TELEGRAM_CHAT_ID) + "\r\n" +
+        
         "--" + boundary + "\r\n"
         "Content-Disposition: form-data; name=\"caption\"\r\n\r\n" +
         captionText + "\r\n" +
+        
         "--" + boundary + "\r\n"
         "Content-Disposition: form-data; name=\"photo\"; filename=\"doorbell.jpg\"\r\n"
         "Content-Type: image/jpeg\r\n\r\n";
 
+    // --- build multipart tail ---
     String tail = "\r\n--" + boundary + "--\r\n";
 
+    // --- determine total size of content ---
     uint32_t totalLength = head.length() + file.size() + tail.length();
 
-    // Connect to Telegram
-    if (!client.connect("api.telegram.org", 443)) {
-        DBG_PRINTLN("Telegram connection failed");
+    // --- connect to telegram ---
+    const char* telegramHost = "api.telegram.org";
+    DBG_PRINTLN("Connecting to " + String(telegramHost));
+    if (!telegramClient.connect(telegramHost, 443)) {
+        DBG_PRINTLN("ERROR: Telegram connection failed");
         file.close();
         return;
     }
 
-    // Send HTTP POST headers
-    client.print(
+    // --- send HTTP POST headers ---
+    telegramClient.print(
         "POST " + url + " HTTP/1.1\r\n"
-        "Host: api.telegram.org\r\n"
+        "Host: " + String(telegramHost) + "\r\n"
         "Content-Type: multipart/form-data; boundary=" + boundary + "\r\n"
         "Content-Length: " + String(totalLength) + "\r\n"
         "Connection: close\r\n\r\n"
     );
 
-    // Send multipart head
-    client.print(head);
+    // --- send multipart head ---
+    telegramClient.print(head);
 
-    // Send file binary
+    // --- send file binary ---
     uint8_t buf[1024];
+    DBG_PRINTLN("Sending JPEG to telegram...");
     while (file.available()) {
         int n = file.read(buf, sizeof(buf));
-        client.write(buf, n);
+        telegramClient.write(buf, n);
     }
 
-    // Send multipart tail
-    client.print(tail);
+    // --- send multipart tail ---
+    telegramClient.print(tail);
 
+    // -- close file ---
     file.close();
 
-    // Read Telegram response
+    // --- read telegram response ---
     DBG_PRINTLN("Telegram response:");
-    while (client.connected()) {
-        String line = client.readStringUntil('\n');
+    while (telegramClient.connected()) {
+        String line = telegramClient.readStringUntil('\n');
         if (line == "\r") break;
     }
-
-    String body = client.readString();
+    String body = telegramClient.readString();
     DBG_PRINTLN(body);
-    DBG_PRINTLN("Done sending photo.");
+
+    DBG_PRINTLN("JPEG sent");
 }
 
 
@@ -390,7 +333,7 @@ void ringIfRung(unsigned long checkDuration = 100) {
 
             captureAndSaveImage(latestRingCapture_filename);
 
-            sendPhotoToTelegram();
+            sendImageToTelegram();
 
             lastRing_endTime = millis();
             lastAction_endTime = millis();
@@ -414,8 +357,153 @@ void activateSurveillance() {
 }
 
 
-void uploadToGoogleDrive() {
-// TODO
+bool checkIfUploadTIme() {
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {
+        DBG_PRINTLN("ERROR: Failed to obtain time");
+        return false;
+    }
+
+    // Extract the hour from the current time
+    int currentHour = timeinfo.tm_hour;
+
+    // Check if the current time is between 1 AM and 4 AM
+    if (currentHour >= 16 || currentHour < 4) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+
+bool uploadImageToCloudinary(File &file, String filename) {
+    // --- skip certificate validation ---
+    cloudinaryClient.setInsecure();
+
+    // --- URL endpoint ---
+    String url = "/v1_1/" + String(CLOUDINARY_CLOUD_NAME) + "/image/upload";
+
+    // --- multipart boundary ---
+    String boundary = "----ESP32CloudinaryBoundary";
+
+    // --- build multipart body ---
+    String head =
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"upload_preset\"\r\n\r\n" +
+        String(CLOUDINARY_UPLOAD_PRESET) + "\r\n" +
+
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"public_id\"\r\n\r\n" +
+        filename + "\r\n" +
+
+        "--" + boundary + "\r\n"
+        "Content-Disposition: form-data; name=\"file\"; filename=\"" + filename + "\"\r\n"
+        "Content-Type: image/jpeg\r\n\r\n";
+
+    // --- build multipart tail ---
+    String tail = "\r\n--" + boundary + "--\r\n";
+
+    // --- determine total size of content ---
+    uint32_t totalLength = head.length() + file.size() + tail.length();
+
+    // --- connect to telegram ---
+    DBG_PRINTLN("Connecting to " + String(cloudinaryHost));
+    if (!cloudinaryClient.connect(cloudinaryHost, 443)) {
+        DBG_PRINTLN("ERROR: Cloudinary connection failed");
+        file.close();
+        return false;
+    }
+
+    // --- send HTTP POST headers ---
+    cloudinaryClient.print(
+        "POST " + url + " HTTP/1.1\r\n"
+        "Host: " + String(cloudinaryHost) + "\r\n"
+        "Content-Type: multipart/form-data; boundary=" + boundary + "\r\n"
+        "Content-Length: " + String(totalLength) + "\r\n"
+        "Connection: close\r\n\r\n"
+    );
+
+    // --- send multipart head ---
+    cloudinaryClient.print(head);
+
+    // --- send file binary ---
+    uint8_t buf[1024];
+    DBG_PRINTLN("Uploading JPEG to cloudinary...");
+    while (file.available()) {
+        int n = file.read(buf, sizeof(buf));
+        cloudinaryClient.write(buf, n);
+    }
+
+    // --- send multipart tail ---
+    cloudinaryClient.print(tail);
+
+    // -- close file ---
+    file.close();
+
+    // --- read cloudinary response ---
+    DBG_PRINTLN("Cloudinary response:");
+    while (cloudinaryClient.connected()) {
+        String line = cloudinaryClient.readStringUntil('\n');
+        if (line == "\r") break;
+    }
+    String body = cloudinaryClient.readString();
+    DBG_PRINTLN(body);
+
+    DBG_PRINTLN("JPEG uploaded");
+    return true;
+}
+
+
+bool uploadAndDeleteAll() {
+    // --- open SD root directory ---
+    File root = SD_MMC.open("/");
+    if (!root || !root.isDirectory()) {
+        DBG_PRINTLN("ERROR: SD root open failed");
+        lastAction_endTime = millis();
+        return false;
+    }
+
+    // --- open next available file in root ---
+    File file = root.openNextFile();
+
+    // --- loop through files ---
+    while (file) {
+        delay(100);
+
+        // --- skip folders, non-JPEGs and the latest ring capture ---
+        String filename = file.name();
+        if (file.isDirectory() || !filename.endsWith(".jpg") || filename == "IMG_" + latestRingCapture_filename + ".jpg") {
+            file = root.openNextFile();
+            continue;
+        }
+
+        // --- upload JPEG to cloudinary ---
+        bool ok = uploadImageToCloudinary(file, filename);
+
+        if (ok) {
+            DBG_PRINTLN("Upload OK deleting " + filename + " from SD card");
+            SD_MMC.remove("/" + filename);
+        }
+        else {
+            DBG_PRINTLN("Upload failed, stopping uploads");
+            lastAction_endTime = millis();
+            return false;
+        }
+
+        // --- stop if motion detected ---
+        if (mcp.digitalRead(PIR_PIN) == HIGH) {
+            DBG_PRINTLN("Motion detected, stopping uploads");
+            lastAction_endTime = millis();
+            return false;
+        }
+
+        file = root.openNextFile();
+        delay(100);
+    }
+
+    DBG_PRINTLN("All images uploaded successfully!");
+    lastAction_endTime = millis();
+    return true;
 }
 
 
@@ -489,6 +577,9 @@ void loop() {
     if (mcp.digitalRead(PIR_PIN) == HIGH) {
         DBG_PRINTLN("Motion detected");
         activateSurveillance();
+    }
+    else if (uploadCheck == false && checkIfUploadTIme() == true) {
+        uploadCheck = uploadAndDeleteAll();
     }
     else if (millis() - lastAction_endTime >= standbyPeriod) {
         DBG_PRINTLN("ESP32-CAM entering deep sleep");

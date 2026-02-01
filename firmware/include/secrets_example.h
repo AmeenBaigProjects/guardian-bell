@@ -18,3 +18,8 @@ const char* MQTT_PASS   = "PASSWORD";
 const char* TELEGRAM_BOT_TOKEN  = "YOUR_BOT_TOKEN";
 const char* TELEGRAM_CHAT_ID    = "YOUR_CHAT_ID";
 
+
+// === cloudinary ===
+const char* CLOUDINARY_CLOUD_NAME       = "YOUR_CLOUD_NAME";
+const char* CLOUDINARY_UPLOAD_PRESET    = "YOUR_UPLOAD_PRESET";
+
