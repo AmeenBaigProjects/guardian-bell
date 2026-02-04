@@ -1,15 +1,15 @@
 #pragma once
 
-// ====== Wi-Fi ======
+// === Wi-Fi ===
 const char* WIFI_SSID   = "YOUR_WIFI_NAME";
 const char* WIFI_PASS   = "YOUR_WIFI_PASSWORD";
 
 
 // === MQTT ===
-// MQTT host (home assistant)
+// --- MQTT host (home assistant) ---
 const char* MQTT_HOST   = "HOME_ASSISTANT_IP";
 const int   MQTT_PORT   = 1883;
-// user MQTT in home assistant
+// --- credentials of home assistant user MQTT ---
 const char* MQTT_USER   = "USERNAME";
 const char* MQTT_PASS   = "PASSWORD";
 
