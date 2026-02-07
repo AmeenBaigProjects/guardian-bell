@@ -24,6 +24,9 @@
 
 
 // === ESP32-CAM pin configuration ===
+// flash LED onboard the ESP32-CAM
+const int FLASH_LED_PIN = 4;
+
 // source pin to wake ESP32-CAM from deep-sleep
 const int WAKE_PIN = 4;
 
@@ -84,6 +87,11 @@ String captionText = "🔔 Someone's at the door!";
 // === cloudinary ===
 // --- host url ---
 const char* cloudinaryHost = "api.cloudinary.com";
+
+
+// === upload window ===
+const int UPLOAD_START_HOUR = 23; // 23:00
+const int UPLOAD_END_HOUR   = 4;  // 04:00
 
 
 // === to check if any images left to upload on SD card ===

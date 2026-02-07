@@ -12,12 +12,59 @@
 #include "settings.h"
 
 
-// === blink infinitely ===
-void error(int LED_PIN) {
-    while(true){
-        digitalWrite(LED_PIN, LOW);
+void initMCP();
+void initCamera();
+void initWifi();
+void initMicroSD();
+void initTime();
+
+
+// === send error message to telegram ===
+void sendTelegramError(const String& msg) {
+    // --- ensure active WiFi connection ---
+    initWifi();
+
+    // --- skip certificate validation ---
+    telegramClient.setInsecure();
+
+    // --- URL endpoint ---
+    String url =
+        "/bot" + String(TELEGRAM_BOT_TOKEN) +
+        "/sendMessage?chat_id=" + String(TELEGRAM_CHAT_ID) +
+        "&text=" "ERROR: " + msg;
+
+    // --- connect to telegram ---
+    if (!telegramClient.connect(telegramHost, 443)) {
+        DBG_PRINTLN("ERROR: Telegram error notify failed");
+        return;
+    }
+
+    // --- simple GET ---
+    telegramClient.print(
+        "GET " + url + " HTTP/1.1\r\n"
+        "Host: " + String(telegramHost) + "\r\n"
+        "Connection: close\r\n\r\n"
+    );
+
+    // --- stop client ---
+    telegramClient.stop();
+}
+
+
+// === error handler ===
+void error(const String& message) {
+    DBG_PRINT("ERROR: ");
+    DBG_PRINTLN(message);
+
+    // --- attempt Telegram notification (best-effort) ---
+    sendTelegramError(message);
+
+    // --- visual indicator (never exits) ---
+    pinMode(FLASH_LED_PIN, OUTPUT);
+    while(1) {
+        digitalWrite(FLASH_LED_PIN, HIGH);
         delay(200);
-        digitalWrite(LED_PIN, HIGH);
+        digitalWrite(FLASH_LED_PIN, LOW);
         delay(200);
     }
 }
@@ -29,8 +76,7 @@ void initMCP(){
     Wire.begin(SDA_PIN, SCL_PIN);
 
     if (!mcp.begin_I2C(0x20, &Wire)) {
-        DBG_PRINTLN("ERROR: MCP23017 init failed");
-        while (1);
+        error("Failed to initialise MCP23017");
     }
     else {
         DBG_PRINTLN("Initialised MCP23017");
@@ -69,8 +115,7 @@ void initCamera() {
     config.fb_count         = 1;
 
     if (esp_camera_init(&config) != ESP_OK) {
-        DBG_PRINTLN("ERROR: Camera init failed");
-        while(1);
+        error("Failed to initialise camera");
     }
     else {
         DBG_PRINTLN("Camera initialised");
@@ -84,8 +129,7 @@ void initMicroSD() {
 
     // --- begin connection to micro SD card in 1-bit mode ---
     if (!SD_MMC.begin("/sdcard", true)) {
-        DBG_PRINTLN("ERROR: Failed to initialise SD card");
-        while(1);
+        error("Failed to initialise SD card");
     }
     else {
         DBG_PRINTLN("SD card initialised");
@@ -94,8 +138,7 @@ void initMicroSD() {
     // --- check if SD card is inserted & readable ---
     uint8_t cardType = SD_MMC.cardType();
     if (cardType == CARD_NONE) {
-        DBG_PRINTLN("ERROR: SD Card corrupted or not detected");
-        while(1);
+        error("SD Card corrupted or not detected");
     }
 }
 
@@ -124,8 +167,7 @@ void initWifi() {
         } 
         else {
             DBG_PRINTLN("");
-            DBG_PRINTLN("ERROR: WiFi connection failed");
-            while(1);
+            error("WiFi connection failed");
         }
     }
 }
@@ -142,8 +184,7 @@ void initTime() {
     // --- get local time ---
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        DBG_PRINTLN("ERROR: Failed to obtain time");
-        while(1);
+        error("Failed to obtain time");
     }
 
     char timeNow[40];
@@ -167,8 +208,8 @@ void initPIR() {
 }
 
 
-// === ensure connection to MQTT  ===
-void ensureMQTT() {
+// === initialise connection to MQTT  ===
+void initMQTT() {
     // --- attempt to connect for 5 seconds ---
     unsigned long attemptConnection_startTime = millis();
     while (!mqtt.connected() && millis() - attemptConnection_startTime < 5000) {
@@ -182,8 +223,7 @@ void ensureMQTT() {
     }
 
     if (!mqtt.connected()) {
-        DBG_PRINTLN("ERROR: Failed to connect to MQTT");
-        while(1);
+        error("Failed to connect to MQTT in time");
     }
     else {
         DBG_PRINTLN("Connected to MQTT");
@@ -220,7 +260,7 @@ void captureAndSaveImage(String filename = getCurrentTimeString()) {
     fb = esp_camera_fb_get();
     if (!fb) {
         DBG_PRINTLN("capture failed");
-        while(1);
+        error("Capture failed");
     }
 
     // --- set path of JPEG file ---
@@ -234,7 +274,7 @@ void captureAndSaveImage(String filename = getCurrentTimeString()) {
     // --- write captured frame to file as JPEG ---
     if (!file) {
         Serial.printf("Failed to open file in writing mode");
-        while(1);
+        // error("Failed to open file in writing mode");
     } 
     else {
         file.write(fb->buf, fb->len);
@@ -254,8 +294,7 @@ void sendImageToTelegram() {
     // --- open latest ring capture JPEG ---
     File file = SD_MMC.open("/IMG_" + latestRingCapture_filename + ".jpg");
     if (!file) {
-        DBG_PRINTLN("ERROR: Failed to open JPEG");
-        while(1);
+        error("Failed to open JPEG file");
     }
     else {
         DBG_PRINTLN("Opened JPEG: " + String(file.name()));
@@ -331,6 +370,9 @@ void sendImageToTelegram() {
     String body = telegramClient.readString();
     DBG_PRINTLN(body);
 
+    // --- stop client ---
+    telegramClient.stop();
+
     DBG_PRINTLN("JPEG sent");
 }
 
@@ -346,7 +388,7 @@ void ringIfRung(unsigned long checkDuration = 100) {
             DBG_PRINTLN("Bell rung!");
             
             // --- connect to MQTT & notify MQTT that doorbell was rung ---
-            ensureMQTT();
+            initMQTT();
             mqtt.publish("doorbell/ring", "pressed");
 
             // --- capture & save image as last ring capture (overwrite) ---
@@ -386,6 +428,61 @@ void activateSurveillance() {
 }
 
 
+// === schedule a random wake-up time for overnight cloud upload ===
+void scheduleRandomTimerWake() {
+
+    // --- get current local time ---
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {
+        DBG_PRINTLN("ERROR: Cannot schedule upload wake (no time)");
+        return;
+    }
+
+    // --- convert current time to epoch seconds ---
+    time_t now = mktime(&timeinfo);
+
+    // --- build start of next upload window (today at UPLOAD_START_HOUR) ---
+    struct tm uploadStart = timeinfo;
+    uploadStart.tm_hour = UPLOAD_START_HOUR;
+    uploadStart.tm_min  = 0;
+    uploadStart.tm_sec  = 0;
+    time_t uploadStartTs = mktime(&uploadStart);
+
+    // --- if already past today's upload window start, move to tomorrow ---
+    if (difftime(uploadStartTs, now) <= 0) {
+        uploadStartTs += 24 * 3600;
+    }
+
+    // --- calculate total upload window length (seconds) ---
+    int windowSeconds;
+    if (UPLOAD_START_HOUR > UPLOAD_END_HOUR) {
+        // window spans midnight (e.g. 16 → 04)
+        windowSeconds = ((24 - UPLOAD_START_HOUR) + UPLOAD_END_HOUR) * 3600;
+    } else {
+        // normal same-day window
+        windowSeconds = (UPLOAD_END_HOUR - UPLOAD_START_HOUR) * 3600;
+    }
+
+    // --- generate random offset inside upload window ---
+    uint32_t randomOffset = esp_random() % windowSeconds;
+
+    // --- final scheduled wake-up time ---
+    time_t wakeTime = uploadStartTs + randomOffset;
+
+    // --- compute sleep duration from now ---
+    uint64_t sleepSeconds = difftime(wakeTime, now);
+
+    // --- debug output ---
+    DBG_PRINT("Scheduling upload wake in ");
+    DBG_PRINT(sleepSeconds);
+    DBG_PRINTLN(" seconds");
+
+    // --- configure deep sleep timer wake-up ---
+    esp_sleep_enable_timer_wakeup(sleepSeconds * 1000000ULL);
+}
+
+
+
 // === check if right time to upload ===
 bool timeToUpload() {
     // --- get current time ---
@@ -399,11 +496,11 @@ bool timeToUpload() {
     int currentHour = timeinfo.tm_hour;
 
     // --- check if the current time is between allowed upload hours ---
-    if (currentHour >= 16 || currentHour < 4) {
-        return true;
+    if (UPLOAD_START_HOUR > UPLOAD_END_HOUR) {
+        return (currentHour >= UPLOAD_START_HOUR || currentHour < UPLOAD_END_HOUR);
     } 
     else {
-        return false;
+        return (currentHour >= UPLOAD_START_HOUR && currentHour < UPLOAD_END_HOUR);
     }
 }
 
@@ -532,7 +629,7 @@ bool uploadAndDeleteAll() {
             return true;
         }
 
-
+        // --- open next available file in root ---
         file = root.openNextFile();
         delay(100);
     }
@@ -576,6 +673,8 @@ void setup() {
     mcp.digitalWrite(RED_LED_PIN, LOW);
     mcp.digitalWrite(BUZZER_PIN, LOW);
 
+    //error("Testing (not an error)");
+
     // --- configure pin as a source to wake when goes HIGH ---
     esp_sleep_enable_ext0_wakeup((gpio_num_t)WAKE_PIN, 1);
 
@@ -590,6 +689,7 @@ void setup() {
             DBG_PRINTLN("Cold boot");
             initTime();
             initPIR();
+            scheduleRandomTimerWake();
             break;
 
         // --- activate surveillance immediately if woke from wake source ---
@@ -598,10 +698,14 @@ void setup() {
             activateSurveillance();
             break;
 
+        // --- if woke from timer wake ---
+        case ESP_SLEEP_WAKEUP_TIMER:
+            DBG_PRINTLN("Timer wake");
+            break;
+
         // --- if unknown wake reason ---
         default:
-            DBG_PRINTLN("Unknown wake reason");
-            while(1);
+            error("Unknown wake reason");
             break;
     }
 
@@ -639,6 +743,9 @@ void loop() {
     else if (millis() - lastAction_endTime >= allowedStandbyDuration) {
         DBG_PRINTLN("ESP32-CAM entering deep sleep");
         DBG_DELAY(1000);
+
+        // --- shedule next random time to upload ---
+        scheduleRandomTimerWake();
 
         // --- hold led in current state (HIGH) ---
         gpio_hold_en((gpio_num_t)BLUE_LED_PIN);
