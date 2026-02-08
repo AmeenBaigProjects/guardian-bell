@@ -1,0 +1,56 @@
+
+This directory contains the project source code.
+
+Source files (.cpp) implement the application logic and reference project
+headers located in the include/ directory using "#include".
+
+The codebase is organised by responsibility to keep concerns separated
+and the firmware easy to scale and maintain.
+
+___
+
+Directory structure:
+
+src/
+├─ config/        Configuration handling and secret credentials
+├─ hardware/      Low-level hardware drivers and peripherals
+├─ network/       Network connectivity and protocols
+├─ services/      Application-level services and integrations
+├─ util/          Shared utilities and helper functions
+├─ main.cpp       Application entry point and orchestration
+
+___
+
+Directory descriptions:
+
+config/
+Runtime and build-time configuration sources (e.g. settings, secrets).
+
+hardware/
+Hardware abstraction and device drivers (camera, sensors, storage, etc).
+
+network/
+Networking and communication layers (WiFi, MQTT, protocols).
+
+services/
+High-level features and external service integrations
+(cloud services, messaging, APIs).
+
+util/
+Common utilities shared across the project
+(error handling, logging, time helpers).
+
+main.cpp
+Program entry point. Responsible for initialisation and coordinating
+the main application flow.
+
+___
+
+Notes:
+
+Each .cpp file typically has a corresponding header in include/.
+
+Headers expose interfaces; source files contain implementations.
+
+This structure is designed to support modular firmware development
+and clear separation of concerns.
