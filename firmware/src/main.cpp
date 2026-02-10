@@ -6,6 +6,7 @@
 #include <esp_sleep.h>
 #include <time.h>
 #include <HTTPClient.h>
+#include <Update.h>
 
 
 // === project headers ===
@@ -28,6 +29,7 @@
 // --- services ---
 #include "telegram.h"
 #include "cloudinary.h"
+#include "ota.h"
 
 // --- utilities ---
 #include "debug.h"
@@ -37,6 +39,7 @@
 
 // === blocking delay to warm up PIR sensor & get stable readings ===
 void warmUpPIR() {
+    // --- time at start of PIR warmup ---
     unsigned long initPIR_startTime = millis();
     while (millis() - initPIR_startTime < initPIR_period) {
         mcp.digitalWrite(BLUE_LED_PIN, HIGH);
@@ -209,10 +212,12 @@ void setup() {
     // --- begin debug serial ---
     DBG_SERIAL_BEGIN(115200);
 
-    // --- initialise sub-systems ---
+    // --- initialise hardware ---
     initMCP();
     initCamera();
     initMicroSD();
+
+    // --- connect to WiFi ---
     initWifi();
 
     // --- set MQTT server ---
@@ -245,6 +250,7 @@ void setup() {
         // --- sync time & initialise PIR if woke from power on ---
         case ESP_SLEEP_WAKEUP_UNDEFINED:
             DBG_PRINTLN("Cold boot");
+            checkForFirmwareUpdate();
             initTime();
             warmUpPIR();
             break;
@@ -258,6 +264,7 @@ void setup() {
         // --- if woke from timer wake ---
         case ESP_SLEEP_WAKEUP_TIMER:
             DBG_PRINTLN("Timer wake");
+            initTime();
             break;
 
         // --- if unknown wake reason ---

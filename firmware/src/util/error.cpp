@@ -18,7 +18,7 @@ void error(const String& message) {
     DBG_PRINTLN(message);
 
     // --- attempt Telegram notification (best-effort) ---
-    sendErrorToTelegram(message);
+    sendMsgToTelegram(message);
 
     // --- visual indicator (never exits) ---
     pinMode(FLASH_LED_PIN, OUTPUT);

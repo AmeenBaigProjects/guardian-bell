@@ -1,6 +1,12 @@
 #pragma once
 
-// ====== Wi-Fi ======
+
+// === OTA firmware update URLs ===
+extern const char* OTA_VERSION_URL;
+extern const char* OTA_FIRMWARE_URL;
+
+
+// === Wi-Fi ===
 extern const char* WIFI_SSID;
 extern const char* WIFI_PASS;
 

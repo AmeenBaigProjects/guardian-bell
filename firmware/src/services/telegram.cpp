@@ -26,7 +26,7 @@ WiFiClientSecure telegramClient;
 
 
 // === send error message to telegram ===
-void sendErrorToTelegram(const String& msg) {
+void sendMsgToTelegram(const String& msg) {
     // --- ensure active WiFi connection ---
     initWifi();
 

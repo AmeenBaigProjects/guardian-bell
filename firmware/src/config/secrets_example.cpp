@@ -10,6 +10,11 @@ To define your secret credentials:
 //#include "settings.h"
 
 
+// === OTA firmware update URLs ===
+const char* OTA_VERSION_URL_EXAMPLE  = "YOUR_LATEST_FIRMWARE_VERSION_URL";
+const char* OTA_FIRMWARE_URL_EXAMPLE = "YOUR_LATEST_FIRMWARE_URL";
+
+
 // === Wi-Fi ===
 const char* WIFI_SSID_EXAMPLE   = "YOUR_WIFI_NAME";
 const char* WIFI_PASS_EXAMPLE   = "YOUR_WIFI_PASSWORD";
@@ -19,12 +24,13 @@ const char* WIFI_PASS_EXAMPLE   = "YOUR_WIFI_PASSWORD";
 // --- MQTT host (home assistant) ---
 const char* MQTT_HOST_EXAMPLE   = "HOME_ASSISTANT_IP";
 const int   MQTT_PORT_EXAMPLE   = 1883;
-// --- credentials of home assistant user MQTT ---
+
+// --- credentials of home assistant user: MQTT ---
 const char* MQTT_USER_EXAMPLE   = "USERNAME";
 const char* MQTT_PASS_EXAMPLE   = "PASSWORD";
 
 
-// ===== telegram =====
+// === telegram ===
 const char* TELEGRAM_BOT_TOKEN_EXAMPLE  = "YOUR_BOT_TOKEN";
 const char* TELEGRAM_CHAT_ID_EXAMPLE    = "YOUR_CHAT_ID";
 

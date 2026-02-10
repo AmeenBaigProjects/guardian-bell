@@ -3,6 +3,10 @@
 #include "settings.h"
 
 
+// === firmware version ===
+const String FW_VERSION = "0.1";
+
+
 // === time settings ===
 const char* ntpServer = "uk.pool.ntp.org";
 const long  gmtOffset_sec = 0;

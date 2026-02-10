@@ -21,7 +21,16 @@ void initTime() {
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
     // --- delay to wait for time configuration ---  
-    delay(5000);
+    delay(1000);
+    DBG_PRINTLN("Tik");
+    delay(1000);
+    DBG_PRINTLN("Tok");
+    delay(1000);
+    DBG_PRINTLN("Tik");
+    delay(1000);
+    DBG_PRINTLN("Tok");
+    delay(1000);
+
 
     // --- get local time ---
     struct tm timeinfo;
@@ -29,6 +38,7 @@ void initTime() {
         error("Failed to obtain time");
     }
 
+    // --- debug: print local time ---
     char timeNow[40];
     strftime(timeNow, sizeof(timeNow), "%Y-%m-%d_%H-%M-%S", &timeinfo);
     DBG_PRINTLN("Time synchronized via NTP @ " + String(timeNow));

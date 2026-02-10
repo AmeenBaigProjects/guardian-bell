@@ -2,6 +2,10 @@
 #include <Arduino.h>
 
 
+// === firmware version ===
+extern const String FW_VERSION;
+
+
 // === time settings ===
 extern const char* ntpServer;
 extern const long  gmtOffset_sec;
