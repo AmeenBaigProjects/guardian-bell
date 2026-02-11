@@ -36,7 +36,7 @@ void ensureMQTT() {
     }
 
     if (!mqtt.connected()) {
-        error("Failed to connect to MQTT in time");
+        error("Failed to connect to MQTT in time", false);
     }
     else {
         DBG_PRINTLN("Connected to MQTT");

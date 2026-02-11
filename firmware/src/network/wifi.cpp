@@ -38,7 +38,7 @@ void initWifi() {
         } 
         else {
             DBG_PRINTLN("");
-            error("WiFi connection failed");
+            error("WiFi connection failed", true);
         }
     }
 }

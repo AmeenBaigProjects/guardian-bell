@@ -37,7 +37,7 @@ void sendMsgToTelegram(const String& msg) {
     String url =
         "/bot" + String(TELEGRAM_BOT_TOKEN) +
         "/sendMessage?chat_id=" + String(TELEGRAM_CHAT_ID) +
-        "&text=" "ERROR: " + msg;
+        "&text=" + msg;
 
     // --- connect to telegram ---
     if (!telegramClient.connect(telegramHost, 443)) {

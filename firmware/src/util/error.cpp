@@ -13,15 +13,16 @@
 
 
 // === error handler ===
-void error(const String& message, bool blinkInfinitely) {
-    DBG_PRINT("ERROR: ");
-    DBG_PRINTLN(message);
+void error(const String& message, bool fatalError) {
+    // --- when error is fatal ---
+    if(fatalError) {
+        DBG_PRINT("FATAL ERROR: ");
+        DBG_PRINTLN(message);
 
-    // --- attempt Telegram notification (best-effort) ---
-    sendMsgToTelegram(message);
+        // --- attempt Telegram notification ---
+        sendMsgToTelegram("FATAL ERROR" + message);
 
-    // --- visual indicator (never exits) ---
-    if (blinkInfinitely) {
+        // --- infinite blink visual indicator ---
         pinMode(FLASH_LED_PIN, OUTPUT);
         while(1) {
             digitalWrite(FLASH_LED_PIN, HIGH);
@@ -29,5 +30,13 @@ void error(const String& message, bool blinkInfinitely) {
             digitalWrite(FLASH_LED_PIN, LOW);
             delay(200);
         }
+    }
+    // --- when error is non-fatal ---
+    else {
+        DBG_PRINT("ERROR: ");
+        DBG_PRINTLN(message);
+
+        // --- attempt Telegram notification ---
+        sendMsgToTelegram("ERROR" + message);
     }
 }
