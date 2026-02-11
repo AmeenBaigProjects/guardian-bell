@@ -64,7 +64,7 @@ void sendImageToTelegram() {
     // --- open latest ring capture JPEG ---
     File file = SD_MMC.open("/IMG_" + latestRingCapture_filename + ".jpg");
     if (!file) {
-        error("Failed to open JPEG file");
+        error("Failed to open JPEG file", false);
     }
     else {
         DBG_PRINTLN("Opened JPEG: " + String(file.name()));

@@ -22,7 +22,7 @@
 
 // === WIFI client setup ===
 WiFiClientSecure cloudinaryClient;
-
+ 
 
 // === upload a JPEG file to cloudinary ===
 bool uploadImageToCloudinary(File &file, String filename) {
@@ -58,7 +58,7 @@ bool uploadImageToCloudinary(File &file, String filename) {
     // --- connect to telegram ---
     DBG_PRINTLN("Connecting to " + String(cloudinaryHost));
     if (!cloudinaryClient.connect(cloudinaryHost, 443)) {
-        DBG_PRINTLN("ERROR: Cloudinary connection failed");
+        error("Cloudinary connection failed", true);
         file.close();
         return false;
     }

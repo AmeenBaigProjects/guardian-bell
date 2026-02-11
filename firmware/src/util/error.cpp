@@ -13,7 +13,7 @@
 
 
 // === error handler ===
-void error(const String& message) {
+void error(const String& message, bool blinkInfinitely) {
     DBG_PRINT("ERROR: ");
     DBG_PRINTLN(message);
 
@@ -21,11 +21,13 @@ void error(const String& message) {
     sendMsgToTelegram(message);
 
     // --- visual indicator (never exits) ---
-    pinMode(FLASH_LED_PIN, OUTPUT);
-    while(1) {
-        digitalWrite(FLASH_LED_PIN, HIGH);
-        delay(200);
-        digitalWrite(FLASH_LED_PIN, LOW);
-        delay(200);
+    if (blinkInfinitely) {
+        pinMode(FLASH_LED_PIN, OUTPUT);
+        while(1) {
+            digitalWrite(FLASH_LED_PIN, HIGH);
+            delay(200);
+            digitalWrite(FLASH_LED_PIN, LOW);
+            delay(200);
+        }
     }
 }

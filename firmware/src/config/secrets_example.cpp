@@ -6,13 +6,17 @@ To define your secret credentials:
     4. Include "settings.h" header file
 */
 
-// === uncomment this ===
+// === uncomment the following ===
+// === project headers ===
+// --- corresponding header ---
 //#include "settings.h"
 
 
 // === OTA firmware update URLs ===
-const char* OTA_VERSION_URL_EXAMPLE  = "YOUR_LATEST_FIRMWARE_VERSION_URL";
-const char* OTA_FIRMWARE_URL_EXAMPLE = "YOUR_LATEST_FIRMWARE_URL";
+// --- URL pointing to remote firmware version ---
+const char* OTA_VERSION_URL_EXAMPLE     = "https://github.com/<user>/<repo>/releases/latest/download/version.txt";
+// --- URL pointing to remote fimware download ---
+const char* OTA_FIRMWARE_URL_EXAMPLE    = "https://github.com/<user>/<repo>/releases/latest/download/firmware.bin";
 
 
 // === Wi-Fi ===

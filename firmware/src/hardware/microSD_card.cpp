@@ -17,7 +17,7 @@ void initMicroSD() {
 
     // --- begin connection to micro SD card in 1-bit mode ---
     if (!SD_MMC.begin("/sdcard", true)) {
-        error("Failed to initialise SD card");
+        error("Failed to initialise SD card", true);
     }
     else {
         DBG_PRINTLN("SD card initialised");
@@ -26,6 +26,6 @@ void initMicroSD() {
     // --- check if SD card is inserted & readable ---
     uint8_t cardType = SD_MMC.cardType();
     if (cardType == CARD_NONE) {
-        error("SD Card corrupted or not detected");
+        error("SD Card corrupted or not detected", true);
     }
 }

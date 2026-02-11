@@ -35,7 +35,7 @@ void initTime() {
     // --- get local time ---
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        error("Failed to obtain time");
+        error("Failed to obtain time", false);
     }
 
     // --- debug: print local time ---
@@ -66,7 +66,7 @@ void scheduleRandomTimerWake() {
     // --- get current local time ---
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        DBG_PRINTLN("ERROR: Cannot schedule upload wake (no time)");
+        error("Cannot schedule upload wake (no time)", false);
         return;
     }
 
@@ -113,7 +113,7 @@ void scheduleRandomTimerWake() {
     uint32_t windowSeconds = difftime(uploadEndTs, uploadStartTs);
 
     if (windowSeconds == 0) {
-        DBG_PRINTLN("ERROR: Upload window length is zero");
+        error("Upload window length is zero", false);
         return;
     }
 
@@ -142,7 +142,7 @@ bool timeToUpload() {
     // --- get current time ---
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo)) {
-        DBG_PRINTLN("ERROR: Failed to obtain time");
+        error("Failed to obtain time", false);
         return false;
     }
 

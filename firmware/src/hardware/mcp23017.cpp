@@ -31,7 +31,7 @@ void initMCP(){
     Wire.begin(SDA_PIN, SCL_PIN);
 
     if (!mcp.begin_I2C(0x20, &Wire)) {
-        error("Failed to initialise MCP23017");
+        error("Failed to initialise MCP23017", true);
     }
     else {
         DBG_PRINTLN("Initialised MCP23017");

@@ -67,7 +67,7 @@ void captureAndSaveImage(String filename = getCurrentDateTime()) {
     fb = esp_camera_fb_get();
     if (!fb) {
         DBG_PRINTLN("capture failed");
-        error("Capture failed");
+        error("Capture failed", true);
     }
 
     // --- set path of JPEG file ---
@@ -269,7 +269,7 @@ void setup() {
 
         // --- if unknown wake reason ---
         default:
-            error("Unknown wake reason");
+            error("Unknown wake reason", false);
             break;
     }
 

@@ -45,7 +45,7 @@ void initCamera() {
     config.fb_count         = 1;
 
     if (esp_camera_init(&config) != ESP_OK) {
-        error("Failed to initialise camera");
+        error("Failed to initialise camera", true);
     }
     else {
         DBG_PRINTLN("Camera initialised");
