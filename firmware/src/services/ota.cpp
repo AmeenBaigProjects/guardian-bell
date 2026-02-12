@@ -37,7 +37,11 @@ static String fetchRemoteFirmwareVersion() {
     HTTPClient http;
     http.begin(otaClient, OTA_VERSION_URL);
 
+    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+
     int code = http.GET();
+    DBG_PRINT("HTTP code (version): "); 
+    DBG_PRINTLN(code);
     if (code != HTTP_CODE_OK) {
         error("OTA firmware version fetch failed", false);
         http.end();
@@ -57,7 +61,9 @@ void performFirmwareUpdateOTA(String rmtVersion) {
     otaClient.setInsecure();
     
     HTTPClient http;
-    http.begin(otaClient, OTA_VERSION_URL);
+    http.begin(otaClient, OTA_FIRMWARE_URL);
+
+    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
 
     int code = http.GET();
     if (code != HTTP_CODE_OK) {
