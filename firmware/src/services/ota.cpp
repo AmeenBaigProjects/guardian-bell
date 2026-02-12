@@ -1,5 +1,6 @@
 // === standard headers ===
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <Update.h>
 
 
@@ -24,10 +25,17 @@
 #include "error.h"
 
 
+// === WIFI client setup ===
+WiFiClientSecure otaClient;
+
+
 // === fetch the latest version of the remote firmware ===
 static String fetchRemoteFirmwareVersion() {
+    // --- skip certificate validation ---
+    otaClient.setInsecure();
+    
     HTTPClient http;
-    http.begin(OTA_VERSION_URL);
+    http.begin(otaClient, OTA_VERSION_URL);
 
     int code = http.GET();
     if (code != HTTP_CODE_OK) {
@@ -45,9 +53,11 @@ static String fetchRemoteFirmwareVersion() {
 
 // === flash firmware OTA ===
 void performFirmwareUpdateOTA(String rmtVersion) {
+    // --- skip certificate validation ---
+    otaClient.setInsecure();
+    
     HTTPClient http;
-
-    http.begin(OTA_FIRMWARE_URL);
+    http.begin(otaClient, OTA_VERSION_URL);
 
     int code = http.GET();
     if (code != HTTP_CODE_OK) {

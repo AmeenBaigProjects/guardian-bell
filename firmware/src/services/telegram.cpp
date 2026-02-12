@@ -100,7 +100,7 @@ void sendImageToTelegram() {
     const char* telegramHost = "api.telegram.org";
     DBG_PRINTLN("Connecting to " + String(telegramHost));
     if (!telegramClient.connect(telegramHost, 443)) {
-        DBG_PRINTLN("ERROR: Telegram connection failed");
+        error("Telegram connection failed", true);
         file.close();
         return;
     }

@@ -37,6 +37,6 @@ void error(const String& message, bool fatalError) {
         DBG_PRINTLN(message);
 
         // --- attempt Telegram notification ---
-        sendMsgToTelegram("ERROR" + message);
+        sendMsgToTelegram("ERROR: " + message);
     }
 }
