@@ -37,13 +37,27 @@
 #include "time_util.h"
 
 
+// === global time variables ===
+// --- time at end of last action ---
+unsigned long lastAction_endTime    = 0;
+
+// --- time at end of last ring ---
+unsigned long lastRing_endTime      = 0;
+
+
+int motionDectctionCount = 0;
+
+
 // === blocking delay to warm up PIR sensor & get stable readings ===
 void warmUpPIR() {
+
     // --- time at start of PIR warmup ---
     unsigned long initPIR_startTime = millis();
+
+    // --- delay with led blink visual indication ---
     while (millis() - initPIR_startTime < initPIR_period) {
         mcp.digitalWrite(BLUE_LED_PIN, HIGH);
-        delay(500);
+        delay(1000);
         mcp.digitalWrite(BLUE_LED_PIN, LOW);
         delay(500);
     }
@@ -88,7 +102,7 @@ void captureAndSaveImage(String filename = getCurrentDateTime()) {
         Serial.printf("Saved: %s\n", path.c_str());
     }
 
-    /// close file & return frame buffer ---
+    // --- close file & return frame buffer ---
     file.close();
     esp_camera_fb_return(fb);
 }
@@ -96,6 +110,7 @@ void captureAndSaveImage(String filename = getCurrentDateTime()) {
 
 // === ring if doorbell rung ===
 void ringIfRung(unsigned long checkDuration = 100) {
+
     // --- check if active-low button pressed for checkDuration ---
     unsigned long checkDuration_startTime = millis();
     while (millis() - checkDuration_startTime < checkDuration) {
@@ -126,8 +141,10 @@ void ringIfRung(unsigned long checkDuration = 100) {
 void activateSurveillance() {
     mcp.digitalWrite(BUZZER_PIN, HIGH);
 
+    // --- time at start of surveillance ---
+    unsigned long  surveillance_startTime = millis();
+
     // --- surveil for surveillance period ---
-    surveillance_startTime = millis();
     while (millis() - surveillance_startTime <= surveillancePeriod) {
         mcp.digitalWrite(RED_LED_PIN, HIGH);
 
@@ -147,6 +164,7 @@ void activateSurveillance() {
 
 // === upload & delete all images (JPEG files) from SD card ===
 bool uploadAndDeleteAll() {
+
     // --- open SD root directory ---
     File root = SD_MMC.open("/");
     if (!root || !root.isDirectory()) {
@@ -204,7 +222,7 @@ bool uploadAndDeleteAll() {
 
 // === initialize system & perform startup sequence ===
 void setup() {
-    DBG_DELAY(50);
+    DBG_DELAY(10);
 
     // --- record time at start of boot ---
     unsigned long boot_startTime = millis(); 
@@ -259,6 +277,7 @@ void setup() {
         case ESP_SLEEP_WAKEUP_EXT0:
             DBG_PRINTLN("Wakeup by PIR");
             activateSurveillance();
+            motionDectctionCount++;
             break;
 
         // --- if woke from timer wake ---
@@ -290,6 +309,10 @@ void loop() {
     mcp.digitalWrite(RED_LED_PIN, LOW);
     mcp.digitalWrite(BUZZER_PIN, LOW);
 
+    if (motionDectctionCount > acceptableDetections) {
+        sendMsgToTelegram("⚠️ Suspicious activity near your door!");
+    }
+
     // --- ring if doorbell rung ---
     ringIfRung();
 
@@ -297,6 +320,7 @@ void loop() {
     if (mcp.digitalRead(PIR_PIN) == HIGH) {
         DBG_PRINTLN("Motion detected");
         activateSurveillance();
+        motionDectctionCount++;
     }
     // --- if images left to upload on SD card & right time to upload ---
     else if (imagesLeftToUpload == true && timeToUpload() == true) {

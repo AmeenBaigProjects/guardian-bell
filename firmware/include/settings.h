@@ -6,6 +6,10 @@
 extern const String FW_VERSION;
 
 
+// === acceptable number of motion detections in one boot ===
+extern const int acceptableDetections;
+
+
 // === time settings ===
 extern const char* ntpServer;
 extern const long  gmtOffset_sec;
