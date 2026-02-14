@@ -20,7 +20,7 @@ void error(const String& message, bool fatalError) {
         DBG_PRINTLN(message);
 
         // --- attempt Telegram notification ---
-        sendMsgToTelegram("FATAL ERROR" + message);
+        sendMsgToTelegram("FATAL ERROR: " + message);
 
         // --- infinite blink visual indicator ---
         pinMode(FLASH_LED_PIN, OUTPUT);

@@ -133,6 +133,7 @@ void checkForFirmwareUpdate() {
     }
     else {
         DBG_PRINTLN("Firmware update available");
+        DBG_PRINTLN("Attempting firmware update");
         performFirmwareUpdateOTA(remoteVersion);
     }
 }

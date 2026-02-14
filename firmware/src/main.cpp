@@ -7,6 +7,10 @@
 #include <time.h>
 #include <HTTPClient.h>
 #include <Update.h>
+// --- access system control ---
+#include "soc/soc.h"
+// --- access RTC control registers ---
+#include "soc/rtc_cntl_reg.h"
 
 
 // === project headers ===
@@ -222,7 +226,10 @@ bool uploadAndDeleteAll() {
 
 // === initialize system & perform startup sequence ===
 void setup() {
-    DBG_DELAY(10);
+    DBG_DELAY(50);
+
+    // --- disable brownout detector ---
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
 
     // --- record time at start of boot ---
     unsigned long boot_startTime = millis(); 
@@ -309,6 +316,7 @@ void loop() {
     mcp.digitalWrite(RED_LED_PIN, LOW);
     mcp.digitalWrite(BUZZER_PIN, LOW);
 
+    // --- notify user if motion exceeds suspicious activity threshold ---
     if (motionDectctionCount > acceptableDetections) {
         sendMsgToTelegram("⚠️ Suspicious activity near your door!");
     }
