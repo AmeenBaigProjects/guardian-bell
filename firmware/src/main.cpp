@@ -1,16 +1,42 @@
 // === standard headers ===
+// --- Arduino core functions & types ---
 #include <Arduino.h>
+
+// --- WiFi connectivity ---
+#include "WiFi.h"
+
+// --- I2C communication library ---
 #include <Wire.h>
+
+// --- ESP32-CAM driver ---
 #include <esp_camera.h>
+
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
+
+// --- ESP32 sleep modes ---
 #include <esp_sleep.h>
+
+// --- system time functions ---
 #include <time.h>
+
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
+
+// --- TLS/SSL client for secure HTTPS connections ---
+#include <WiFiClientSecure.h>
+
+// --- MQTT client library ---
+#include <PubSubClient.h> 
+
+// --- OTA firmware update handling (flash writing) ---
 #include <Update.h>
+
 // --- access system control ---
-#include "soc/soc.h"
+#include <soc/soc.h>
+
 // --- access RTC control registers ---
-#include "soc/rtc_cntl_reg.h"
+#include <soc/rtc_cntl_reg.h>
 
 
 // === project headers ===
@@ -34,85 +60,35 @@
 #include "telegram.h"
 #include "cloudinary.h"
 #include "ota.h"
-
+ 
 // --- utilities ---
 #include "debug.h"
 #include "error.h"
 #include "time_util.h"
+#include "security_alarm.h"
+#include "warmup_pir.h"
+#include "capture_save_image.h"
 
 
-// === global time variables ===
+// === global variables with default values set ===
 // --- time at end of last action ---
 unsigned long lastAction_endTime    = 0;
 
 // --- time at end of last ring ---
 unsigned long lastRing_endTime      = 0;
 
-
+// --- number of motion detections ---
 int motionDectctionCount = 0;
 
+// --- to check if warned once ---
+bool warnedOnce = false;
 
-// === blocking delay to warm up PIR sensor & get stable readings ===
-void warmUpPIR() {
-
-    // --- time at start of PIR warmup ---
-    unsigned long initPIR_startTime = millis();
-
-    // --- delay with led blink visual indication ---
-    while (millis() - initPIR_startTime < initPIR_period) {
-        mcp.digitalWrite(BLUE_LED_PIN, HIGH);
-        delay(1000);
-        mcp.digitalWrite(BLUE_LED_PIN, LOW);
-        delay(500);
-    }
-
-    // --- reset last action endtime to current time ---
-    lastAction_endTime = millis();
-}
+// --- to check if warned twice ---
+bool warnedTwice = false;
 
 
-// === capture & save image ===
-void captureAndSaveImage(String filename = getCurrentDateTime()) {
-    
-    // --- discard first frame ---
-    camera_fb_t *fb = esp_camera_fb_get();
-    if (fb) esp_camera_fb_return(fb);
-
-    // --- delay for stability ---
-    delay(50);
-    
-    // --- capture image as JPEG ---
-    fb = esp_camera_fb_get();
-    if (!fb) {
-        DBG_PRINTLN("capture failed");
-        error("Capture failed", true);
-    }
-
-    // --- set path of JPEG file ---
-    String path = "/IMG_" + filename + ".jpg";
-    Serial.printf("Picture file name: %s\n", path.c_str());
-
-    // --- open file for writing ---
-    fs::FS &fs = SD_MMC;
-    File file = fs.open(path.c_str(), FILE_WRITE);
-
-    // --- write captured frame to file as JPEG ---
-    if (!file) {
-        Serial.printf("Failed to open file in writing mode");
-        // error("Failed to open file in writing mode");
-    } 
-    else {
-        file.write(fb->buf, fb->len);
-        Serial.printf("Saved: %s\n", path.c_str());
-    }
-
-    // --- close file & return frame buffer ---
-    file.close();
-    esp_camera_fb_return(fb);
-}
-
-
-// === ring if doorbell rung ===
+// === ring ===
+// --- ring if doorbell rung ---
 void ringIfRung(unsigned long checkDuration = 100) {
 
     // --- check if active-low button pressed for checkDuration ---
@@ -141,15 +117,15 @@ void ringIfRung(unsigned long checkDuration = 100) {
 }
 
 
-// === activate surveillance routine ===
+// === surveil ===
+// --- activate surveillance routine ---
 void activateSurveillance() {
-    mcp.digitalWrite(BUZZER_PIN, HIGH);
 
     // --- time at start of surveillance ---
-    unsigned long  surveillance_startTime = millis();
+    unsigned long  startMs = millis();
 
     // --- surveil for surveillance period ---
-    while (millis() - surveillance_startTime <= surveillancePeriod) {
+    while (millis() - startMs <= surveillancePeriod) {
         mcp.digitalWrite(RED_LED_PIN, HIGH);
 
         // --- capture & save image to SD card every second ---
@@ -166,7 +142,8 @@ void activateSurveillance() {
 }
 
 
-// === upload & delete all images (JPEG files) from SD card ===
+// === upload ===
+// --- upload & delete all images (JPEG files) from SD card ---
 bool uploadAndDeleteAll() {
 
     // --- open SD root directory ---
@@ -261,7 +238,7 @@ void setup() {
     mcp.digitalWrite(RED_LED_PIN, LOW);
     mcp.digitalWrite(BUZZER_PIN, LOW);
 
-    //error("Testing (not an error)");
+    //error("For testing (not an error)");
 
     // --- configure pin as a source to wake when goes HIGH ---
     esp_sleep_enable_ext0_wakeup((gpio_num_t)WAKE_PIN, 1);
@@ -283,6 +260,7 @@ void setup() {
         // --- activate surveillance immediately if woke from wake source ---
         case ESP_SLEEP_WAKEUP_EXT0:
             DBG_PRINTLN("Wakeup by PIR");
+            mcp.digitalWrite(BUZZER_PIN, HIGH);
             activateSurveillance();
             motionDectctionCount++;
             break;
@@ -316,9 +294,16 @@ void loop() {
     mcp.digitalWrite(RED_LED_PIN, LOW);
     mcp.digitalWrite(BUZZER_PIN, LOW);
 
-    // --- notify user if motion exceeds suspicious activity threshold ---
-    if (motionDectctionCount > acceptableDetections) {
+    // --- notify user if motion detections exceed suspicious activity threshold ---
+    if (motionDectctionCount > acceptableDetections && !warnedOnce) {
         sendMsgToTelegram("⚠️ Suspicious activity near your door!");
+        warnedOnce = true;
+    }
+
+    // --- sound alarm if motion detections are seriously high ---
+    if (motionDectctionCount > 2*acceptableDetections && !warnedTwice) {
+        soundAlarm(60000);
+        warnedTwice = true;
     }
 
     // --- ring if doorbell rung ---
@@ -340,8 +325,10 @@ void loop() {
         DBG_PRINTLN("ESP32-CAM entering deep sleep");
         DBG_DELAY(1000);
 
-        // --- shedule next random time to upload ---
-        scheduleRandomTimerWake();
+        // --- shedule next random time to upload if images left to upload ---
+        if (imagesLeftToUpload) {
+            scheduleRandomTimerWake();
+        }
 
         // --- hold led in current state (HIGH) ---
         gpio_hold_en((gpio_num_t)BLUE_LED_PIN);

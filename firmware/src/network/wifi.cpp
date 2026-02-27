@@ -1,5 +1,6 @@
 // === standard headers ===
-#include "WiFi.h"
+// --- WiFi connectivity ---
+#include <WiFi.h>
 
 
 // === project headers ===

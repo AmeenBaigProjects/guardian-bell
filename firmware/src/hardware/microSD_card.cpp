@@ -1,4 +1,5 @@
 // === standard headers ===
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
 
 

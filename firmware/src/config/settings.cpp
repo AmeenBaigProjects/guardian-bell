@@ -4,7 +4,7 @@
 
 
 // === firmware version ===
-const String FW_VERSION = "v1.0.0-beta.2.5";
+const String FW_VERSION = "v1.0.0-beta.2.6";
 
 
 // === acceptable number of motion detections in one boot ===
@@ -43,7 +43,14 @@ bool imagesLeftToUpload = true;
 
 
 // === time variables ===
-const unsigned long surveillancePeriod      = 30000;    // allowed suveillance duration
-const unsigned long initPIR_period          = 20000;    // duration of initialising PIR sensor
-const unsigned long allowedStandbyDuration  = 60000;    // maximum allowed standby duration
+// --- allowed suveillance duration ---
+const unsigned long surveillancePeriod      = 30000;
+
+// --- time allowed to warm up PIR sensor ---
+const unsigned long warmUpPIR_period        = 20000;
+
+// --- allowed standby duration ---
+const unsigned long allowedStandbyDuration  = 60000;
+
+// --- minimum time to pass since last ring ---
 const unsigned long timeSince_lastRing      = 2000;

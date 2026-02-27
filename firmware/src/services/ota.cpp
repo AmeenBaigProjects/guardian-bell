@@ -1,6 +1,11 @@
 // === standard headers ===
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
+
+// --- TLS/SSL client for secure HTTPS connections
 #include <WiFiClientSecure.h>
+
+// --- OTA firmware update handling ---
 #include <Update.h>
 
 

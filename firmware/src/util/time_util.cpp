@@ -1,5 +1,7 @@
 // === standard headers ===
+// --- system time functions --
 #include <time.h>
+// --- ESP32 sleep modes ---
 #include <esp_sleep.h>
 
 

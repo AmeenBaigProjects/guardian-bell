@@ -1,4 +1,5 @@
 // === standard headers ===
+// --- ESP32-CAM driver ---
 #include <esp_camera.h>
 
 

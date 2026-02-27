@@ -1,4 +1,5 @@
 // === standard headers ===
+// --- I2C communication library ---
 #include <Wire.h>
 
 

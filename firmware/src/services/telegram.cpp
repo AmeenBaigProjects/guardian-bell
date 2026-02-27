@@ -1,5 +1,8 @@
 // === standard headers ===
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
+
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
 

@@ -1,4 +1,5 @@
 // === standard headers ===
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
 

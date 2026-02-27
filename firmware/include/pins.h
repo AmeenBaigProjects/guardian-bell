@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 // === ESP32-CAM pin configuration ===
 // flash LED onboard the ESP32-CAM
