@@ -4,7 +4,7 @@
 
 
 // === firmware version ===
-const String FW_VERSION = "v1.0.0-beta.3.1";
+const String FW_VERSION = "v1.0.0-beta.3.2";
 
 
 // === acceptable number of motion detections in one boot ===

@@ -1,2 +1,1 @@
-- improved suspicious activity warning mesages sent via telegram
-- fixed issue where firmware update notes were not being sent via telegram
+- improved image capture timing on doorbell trigger

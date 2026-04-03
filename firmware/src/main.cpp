@@ -125,13 +125,13 @@ void ringIfRung() {
         // --- if button pushed & allowed time since last ring has passed ---
         if (millis() - lastRingTime > timeSinceLastRing) {
             DBG_PRINTLN("Bell rung!");
+
+            // --- capture & save image as last ring capture ---
+            captureAndSaveImage(lastRingCaptureFilename);
             
             // --- connect to MQTT & notify MQTT that doorbell was rung ---
             ensureMQTT();
             mqtt.publish("doorbell/ring", "pressed");
-
-            // --- capture & save image as last ring capture ---
-            captureAndSaveImage(lastRingCaptureFilename);
 
             // --- send this image to telegram ---
             sendImageToTelegram(captionText);
