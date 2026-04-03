@@ -65,6 +65,7 @@ static String fetchRemoteFirmwareVersion() {
 
 // === fetch update notes for the latest version of the remote firmware ===
 static String fetchUpdateNotes() {
+    // --- skip certificate validation ---
     otaClient.setInsecure();
 
     HTTPClient http;
@@ -142,12 +143,14 @@ void performFirmwareUpdateOTA(String rmtVersion) {
     // --- notify firmware update sucess via telegram ---
     sendMsgToTelegram("Firmware updated sucessfully from " + FW_VERSION + " to " + rmtVersion);
 
+    delay(1000);
+
     // --- send firmware update notes via telegram ---
-    sendMsgToTelegram("GuardianBell" + rmtVersion + ":\n" + updateNotes);
+    sendMsgToTelegram("GuardianBell " + rmtVersion + ":\n" + updateNotes);
+
+    delay(2000);
     
     http.end();
-
-    delay(500);
 
     ESP.restart();
 }

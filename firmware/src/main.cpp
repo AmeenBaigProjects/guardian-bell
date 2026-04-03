@@ -134,7 +134,7 @@ void ringIfRung() {
             captureAndSaveImage(lastRingCaptureFilename);
 
             // --- send this image to telegram ---
-            sendImageToTelegram();
+            sendImageToTelegram(captionText);
 
             // --- reset last ring endtime & last action endtime to current time ---
             lastRingTime = millis();
@@ -334,20 +334,27 @@ void loop() {
 
     // --- notify user if motion detections exceed suspicious activity threshold ---
     if (motionDectctionCount > acceptableDetections && !warnedOnce) {
-        sendMsgToTelegram("⚠️ Suspicious activity near your door!");
         
         // --- capture & save image ---
         captureAndSaveImage(lastRingCaptureFilename);
 
         // --- send this image to telegram ---
-        sendImageToTelegram();
+        sendImageToTelegram("⚠️ Suspicious activity near your door!");
 
         warnedOnce = true;
     }
 
     // --- sound alarm if motion detections are seriously high ---
     if (motionDectctionCount > 2*acceptableDetections && !warnedTwice) {
+                
+        // --- capture & save image ---
+        captureAndSaveImage(lastRingCaptureFilename);
+
+        // --- send this image to telegram ---
+        sendImageToTelegram("⚠️ Seriously suspicious activity near your door!");
+
         soundAlarm(60000);
+
         warnedTwice = true;
     }
 

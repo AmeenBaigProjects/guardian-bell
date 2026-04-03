@@ -60,7 +60,7 @@ void sendMsgToTelegram(const String& msg) {
 }
 
 
-void sendImageToTelegram() {
+void sendImageToTelegram(String caption) {
     // --- skip certificate validation ---
     telegramClient.setInsecure();
 
@@ -87,7 +87,7 @@ void sendImageToTelegram() {
         
         "--" + boundary + "\r\n"
         "Content-Disposition: form-data; name=\"caption\"\r\n\r\n" +
-        captionText + "\r\n" +
+        caption + "\r\n" +
         
         "--" + boundary + "\r\n"
         "Content-Disposition: form-data; name=\"photo\"; filename=\"doorbell.jpg\"\r\n"

@@ -3,4 +3,4 @@
 
 void sendMsgToTelegram(const String& msg);
 
-void sendImageToTelegram();
+void sendImageToTelegram(String caption);
