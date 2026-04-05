@@ -1,6 +1,6 @@
-PROJECT_NAME           = "guardian-bell-MK1"
+PROJECT_NAME           = "guardian-bell-mk1"
 OUTPUT_DIRECTORY       = docs/generated
-INPUT                  = /firmware
+INPUT                  = ./firmware
 RECURSIVE              = YES
 GENERATE_LATEX         = NO
 GENERATE_HTML          = YES
