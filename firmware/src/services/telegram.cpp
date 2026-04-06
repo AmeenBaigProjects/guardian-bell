@@ -1,25 +1,25 @@
-/// === standard headers ===
-/// --- SD card access via SD_MMC interface ---
+// === standard headers ===
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
 
-/// --- HTTP client for REST requests / file download ---
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "telegram.h"
 
-/// --- secrets_example.h for reference ---
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 
-/// --- network ---
+// --- network ---
 #include "wifi.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 
@@ -60,6 +60,7 @@ void sendMsgToTelegram(const String& msg) {
 }
 
 
+/// === send error message to telegram with caption===
 void sendImageToTelegram(String caption) {
     /// --- skip certificate validation ---
     telegramClient.setInsecure();

@@ -1,23 +1,23 @@
-/// === standard headers ===
-/// --- I2C communication library ---
+// === standard headers ===
+// --- I2C communication library ---
 #include <Wire.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "mcp23017.h"
 
-/// --- secrets_example.h for reference ---
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 #include "pins.h"
 
-/// --- network ---
+// --- network ---
 #include "wifi.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

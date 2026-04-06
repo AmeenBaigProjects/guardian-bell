@@ -1,20 +1,20 @@
-/// === standard headers ===
-/// --- SD card access via SD_MMC interface ---
+// === standard headers ===
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "wipe_sd_card.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 #include "pins.h"
 
-/// --- hardware ---
+// --- hardware ---
 #include "mcp23017.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 #include "button_interrupt.h"

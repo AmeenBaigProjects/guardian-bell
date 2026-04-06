@@ -1,16 +1,16 @@
-/// === standard headers ===
-/// --- WiFi connectivity ---
+// === standard headers ===
+// --- WiFi connectivity ---
 #include <WiFi.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "wifi.h"
 
-/// --- secrets_example.h for reference ---
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

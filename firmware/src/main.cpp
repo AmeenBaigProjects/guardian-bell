@@ -1,67 +1,67 @@
-/// === standard headers ===
-/// --- Arduino core functions & types ---
+// === standard headers ===
+// --- Arduino core functions & types ---
 #include <Arduino.h>
 
-/// --- WiFi connectivity ---
+// --- WiFi connectivity ---
 #include "WiFi.h"
 
-/// --- I2C communication library ---
+// --- I2C communication library ---
 #include <Wire.h>
 
-/// --- ESP32-CAM driver ---
+// --- ESP32-CAM driver ---
 #include <esp_camera.h>
 
-/// --- SD card access via SD_MMC interface ---
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
 
-/// --- ESP32 sleep modes ---
+// --- ESP32 sleep modes ---
 #include <esp_sleep.h>
 
-/// --- system time functions ---
+// --- system time functions ---
 #include <time.h>
 
-/// --- HTTP client for REST requests / file download ---
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
-/// --- TLS/SSL client for secure HTTPS connections ---
+// --- TLS/SSL client for secure HTTPS connections ---
 #include <WiFiClientSecure.h>
 
-/// --- MQTT client library ---
+// --- MQTT client library ---
 #include <PubSubClient.h> 
 
-/// --- OTA firmware update handling (flash writing) ---
+// --- OTA firmware update handling (flash writing) ---
 #include <Update.h>
 
-/// --- access system control ---
+// --- access system control ---
 #include <soc/soc.h>
 
-/// --- access RTC control registers ---
+// --- access RTC control registers ---
 #include <soc/rtc_cntl_reg.h>
 
 
-/// === project headers ===
-/// --- secrets_example.h for reference ---
+// === project headers ===
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 #include "pins.h"
 
-/// --- hardware ---
+// --- hardware ---
 #include "camera.h"
 #include "mcp23017.h"
 #include "microSD_card.h"
 
-/// --- network ---
+// --- network ---
 #include "wifi.h"
 #include "mqtt.h"
 
-/// --- services ---
+// --- services ---
 #include "telegram.h"
 #include "cloudinary.h"
 #include "ota.h"
  
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 #include "time_util.h"
@@ -72,7 +72,7 @@
 #include "wipe_sd_card.h"
 
 
-/// === global variables with default values set ===
+// === global variables with default values set ===
 /// --- time at end of last interrupt ---
 unsigned long lastInterruptTime = 0; 
 
@@ -92,8 +92,7 @@ bool warnedOnce = false;
 bool warnedTwice = false;
 
 
-/// === ring ===
-/// --- ring if doorbell rung ---
+/// === ring if doorbell rung ===
 void ringIfRung() {
     bool shouldRing = false;
 
@@ -145,8 +144,7 @@ void ringIfRung() {
 }
 
 
-/// === surveil ===
-/// --- activate surveillance routine ---
+/// === activate surveillance routine ===
 void activateSurveillance() {
 
     /// --- time at start of surveillance ---
@@ -169,8 +167,7 @@ void activateSurveillance() {
 }
 
 
-/// === upload ===
-/// --- upload & delete all images (JPEG files) from SD card ---
+/// === upload & delete all images (JPEG files) from SD card ===
 bool uploadAndDeleteAll() {
 
     /// --- open SD root directory ---

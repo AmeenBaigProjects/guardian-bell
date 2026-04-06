@@ -1,15 +1,15 @@
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "warmup_pir.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 #include "pins.h"
 
-/// --- hardware ---
+// --- hardware ---
 #include "mcp23017.h"
 
-/// --- util ---
+// --- util ---
 #include "wipe_sd_card.h"
 
 

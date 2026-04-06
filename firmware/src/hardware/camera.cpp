@@ -1,16 +1,16 @@
-/// === standard headers ===
-/// --- ESP32-CAM driver ---
+// === standard headers ===
+// --- ESP32-CAM driver ---
 #include <esp_camera.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "camera.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "pins.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 
@@ -19,7 +19,7 @@
 void initCamera() {
     DBG_PRINTLN("Initialising camera...");
 
-    /// --- configure camera ---
+    /// --- configure came ---
     camera_config_t config;
     config.ledc_channel     = LEDC_CHANNEL_0;
     config.ledc_timer       = LEDC_TIMER_0;

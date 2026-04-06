@@ -1,13 +1,13 @@
-/// === standard headers ===
-/// --- SD card access via SD_MMC interface ---
+// === standard headers ===
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "microSD_card.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

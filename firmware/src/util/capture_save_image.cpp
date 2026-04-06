@@ -1,23 +1,23 @@
-/// === standard headers ===
-/// --- ESP32-CAM driver ---
+// === standard headers ===
+// --- ESP32-CAM driver ---
 #include <esp_camera.h>
 
-/// --- SD card access via SD_MMC interface ---
+// --- SD card access via SD_MMC interface ---
 #include <SD_MMC.h>
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "capture_save_image.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 #include "pins.h"
 
-/// --- hardware ---
+// --- hardware ---
 #include "camera.h"
 #include "microSD_card.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

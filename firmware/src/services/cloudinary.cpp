@@ -1,22 +1,22 @@
-/// === standard headers ===
-/// --- HTTP client for REST requests / file download ---
+// === standard headers ===
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "cloudinary.h"
 
-/// --- secrets_example.h for reference ---
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 
-/// --- network ---
+// --- network ---
 #include "wifi.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

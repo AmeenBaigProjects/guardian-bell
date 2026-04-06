@@ -1,47 +1,53 @@
 /* 
 To define your secret credentials:
-    1. Rename file to "secrets.cpp" (for clarity)
+    1. Rename this file to "secrets.cpp"
     2. Remove "_EXAMPLE" appending all variable names
     3. Change example values to your values
     4. Include "settings.h" header file
 */
 
-/// === uncomment the following ===
-/// === project headers ===
-/// --- corresponding header ---
+// NOTE: uncomment the following lines:
+// === project headers ===
+// --- corresponding header ---
 //#include "settings.h"
 
 
-/// === OTA firmware update URLs ===
+// === OTA firmware update URLs ===
 /// --- URL pointing to remote firmware version ---
 const char* OTA_VERSION_URL_EXAMPLE         = "https://github.com/<user>/<repo>/releases/latest/download/version.txt";
+
 /// --- URL pointing to firmware update notes ---
 const char* OTA_UPDATE_NOTES_URL_EXAMPLE    = "https://github.com/<user>/<repo>/releases/latest/download/update_notes.txt";
+
 /// --- URL pointing to remote fimware download ---
 const char* OTA_FIRMWARE_URL_EXAMPLE        = "https://github.com/<user>/<repo>/releases/latest/download/firmware.bin";
 
 
-/// === Wi-Fi ===
+// === Wi-Fi ===
 const char* WIFI_SSID_EXAMPLE   = "YOUR_WIFI_NAME";
 const char* WIFI_PASS_EXAMPLE   = "YOUR_WIFI_PASSWORD";
 
 
-/// === MQTT ===
+// === MQTT ===
 /// --- MQTT host (home assistant) ---
 const char* MQTT_HOST_EXAMPLE   = "HOME_ASSISTANT_IP";
+
+/// --- MQTT broker port (1883 = default unencrypted MQTT) ---
 const int   MQTT_PORT_EXAMPLE   = 1883;
 
-/// --- credentials of home assistant user: MQTT ---
+/// --- username of home assistant user: MQTT ---
 const char* MQTT_USER_EXAMPLE   = "USERNAME";
+
+/// --- password of home assistant user: MQTT ---
 const char* MQTT_PASS_EXAMPLE   = "PASSWORD";
 
 
-/// === telegram ===
+// === telegram ===
 const char* TELEGRAM_BOT_TOKEN_EXAMPLE  = "YOUR_BOT_TOKEN";
 const char* TELEGRAM_CHAT_ID_EXAMPLE    = "YOUR_CHAT_ID";
 
 
-/// === cloudinary ===
+// === cloudinary ===
 const char* CLOUDINARY_CLOUD_NAME_EXAMPLE       = "YOUR_CLOUD_NAME";
 const char* CLOUDINARY_UPLOAD_PRESET_EXAMPLE    = "YOUR_UPLOAD_PRESET";
 

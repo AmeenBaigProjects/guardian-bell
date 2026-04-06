@@ -1,18 +1,18 @@
-/// === standard headers ===
-/// --- system time functions --
+// === standard headers ===
+// --- system time functions --
 #include <time.h>
-/// --- ESP32 sleep modes ---
+// --- ESP32 sleep modes ---
 #include <esp_sleep.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "time_util.h"
 
-/// --- cofiguration ---
+// --- cofiguration ---
 #include "settings.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

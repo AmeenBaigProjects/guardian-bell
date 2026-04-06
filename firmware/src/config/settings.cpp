@@ -1,5 +1,5 @@
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "settings.h"
 
 
@@ -11,30 +11,37 @@ const String FW_VERSION = "v1.0.0-beta.3.2";
 const int acceptableDetections = 20;
 
 
-/// === time settings ===
+// === time settings ===
+/// --- ntp server url ---
 const char* ntpServer = "uk.pool.ntp.org";
+
+/// --- offset from gmt in hours ---
 const long  gmtOffset_sec = 0;
-const int   daylightOffset_sec = 3600;
+
+/// --- offset for daylight saving in seconds ---
+const int  daylightOffset_sec = 3600;
 
 
 /// === filename of image captured at latest doorbell ring ===
 const String lastRingCaptureFilename = "latest_ring_capture";
 
 
-/// === telegram ===
-/// --- host url ---
-const char* telegramHost = "api.telegram.org"; 
+// === telegram ===
+/// --- telegram host url ---
+const char* telegramHost = "api.telegram.org";
+
 /// --- caption sent to telegram with latest ring capture ---
 String captionText = "🔔 Someone's at the door!";
 
 
-/// === cloudinary ===
-/// --- host url ---
+/// === cloudinary host url ===
 const char* cloudinaryHost = "api.cloudinary.com";
 
 
-/// === upload window ===
+// === time window to commence upload ===
+/// --- start hour of upload window ---
 const int UPLOAD_START_HOUR = 1;
+/// --- end hour of upload window ---
 const int UPLOAD_END_HOUR   = 4;
 
 
@@ -42,7 +49,7 @@ const int UPLOAD_END_HOUR   = 4;
 bool imagesLeftToUpload = true;
 
 
-/// === time variables ===
+// === time variables ===
 /// --- allowed suveillance duration ---
 const unsigned long surveillancePeriod      = 15000;
 

@@ -1,5 +1,5 @@
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "button_interrupt.h"
 
 
@@ -7,7 +7,7 @@
 volatile bool doorbellInterrupted = false; 
 
 
-/// === push button interrupt ===
+/// === push button interrupt handler ===
 void IRAM_ATTR handleButtonInterrupt() { 
     doorbellInterrupted = true;
 }

@@ -1,14 +1,14 @@
 #pragma once
 #include <Arduino.h>
 
-/// === ESP32-CAM pin configuration ===
-// -- button input --
+// === ESP32-CAM pin configuration ===
+/// --- button input ---
 const int BTN_ESP_PIN = 3;
 
-// -- flash LED onboard the ESP32-CAM --
+/// --- flash LED onboard the ESP32-CAM ---
 const int FLASH_LED_PIN = 4;
 
-// -- source pin to wake ESP32-CAM from deep-sleep --
+/// --- source pin to wake ESP32-CAM from deep-sleep ---
 const int WAKE_PIN = 4;
 
 /// --- I2C SCL to MCP23X17 ---
@@ -35,12 +35,16 @@ const int SDA_PIN = 13;
 #define PCLK_GPIO_NUM 22
 
 
-/// === MCP23017 configuration ===
-/// --- input sources ---
-const int BTN_MCP_PIN = 0;      // push button input
-const int PIR_PIN = 1;          // PIR input
+// === MCP23017 pin configuration ===
+/// --- push button input source ---
+const int BTN_MCP_PIN = 0;
+/// --- PIR input source ---
+const int PIR_PIN = 1;
 
-/// --- peripherals ---
-const int RED_LED_PIN   = 3;    // external red LED
-const int BLUE_LED_PIN  = 4;    // external blue LED
-const int BUZZER_PIN  = 5;      // piezo buzzer
+// === peripherals ===
+/// --- external red LED ---
+const int RED_LED_PIN   = 3;
+/// --- external blue LED ---
+const int BLUE_LED_PIN  = 4;
+/// --- piezo buzzer ---
+const int BUZZER_PIN  = 5;

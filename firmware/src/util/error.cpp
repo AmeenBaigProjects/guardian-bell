@@ -1,14 +1,14 @@
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "error.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "pins.h"
 
-/// --- services ---
+// --- services ---
 #include "telegram.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 
 

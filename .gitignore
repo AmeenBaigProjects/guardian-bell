@@ -17,11 +17,16 @@ Thumbs.db
 # Logs
 *.log
 
-# Ignore secrets file
+# Secrets file
 secrets.cpp
 
-# Ignore Doxygen generated documentation
+# Doxygen generated documentation
 /docs/generated/
 
-# Ignore .vscode
+# .vscode
 .vscode/
+
+# Library and test
+lib/
+test/
+

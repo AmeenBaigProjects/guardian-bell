@@ -1,14 +1,14 @@
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "mqtt.h"
 
-/// --- secrets_example.h for reference ---
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- network ---
+// --- network ---
 #include "wifi.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <Arduino.h>
 
-
 extern const String FW_VERSION;
 
 extern const int acceptableDetections;

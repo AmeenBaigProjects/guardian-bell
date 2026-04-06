@@ -1,31 +1,31 @@
-/// === standard headers ===
-/// --- HTTP client for REST requests / file download ---
+// === standard headers ===
+// --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
-/// --- TLS/SSL client for secure HTTPS connections
+// --- TLS/SSL client for secure HTTPS connections
 #include <WiFiClientSecure.h>
 
-/// --- OTA firmware update handling ---
+// --- OTA firmware update handling ---
 #include <Update.h>
 
 
-/// === project headers ===
-/// --- corresponding header ---
+// === project headers ===
+// --- corresponding header ---
 #include "ota.h"
 
-/// --- secrets_example.h for reference ---
+// --- secrets_example.h for reference ---
 #include "secrets.h"
 
-/// --- configuration ---
+// --- configuration ---
 #include "settings.h"
 
-/// --- network ---
+// --- network ---
 #include "wifi.h"
 
-/// --- services ---
+// --- services ---
 #include "telegram.h"
 
-/// --- utilities ---
+// --- utilities ---
 #include "debug.h"
 #include "error.h"
 
