@@ -1,1 +1,5 @@
-- improved image capture timing on doorbell trigger
+- simulated failed OTA update via corrupted version.txt
+- added OTA update retry logic with configurable max attempts
+- improved error logging with HTTP status codes and byte counts
+- added per-attempt Telegram notifications during OTA retries
+- added final failure Telegram alert after all retries exhausted

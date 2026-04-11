@@ -49,7 +49,9 @@ static String fetchRemoteFirmwareVersion() {
     DBG_PRINTLN(code);
 
     if (code != HTTP_CODE_OK) {
-        error("OTA firmware version fetch failed", false);
+        DBG_PRINT("OTA version fetch failed with HTTP code: ");
+        DBG_PRINTLN(code);
+        error("OTA firmware version fetch failed (HTTP " + String(code) + ")", false);
         http.end();
         return "";
     }
@@ -79,7 +81,9 @@ static String fetchUpdateNotes() {
     DBG_PRINTLN(code);
 
     if (code != HTTP_CODE_OK) {
-        error("OTA firmware update notes fetch failed", false);
+        DBG_PRINT("OTA update notes fetch failed with HTTP code: ");
+        DBG_PRINTLN(code);
+        error("OTA firmware update notes fetch failed (HTTP " + String(code) + ")", false);
         http.end();
         return "";
     }
@@ -94,7 +98,8 @@ static String fetchUpdateNotes() {
 
 
 /// === flash firmware OTA ===
-void performFirmwareUpdateOTA(String rmtVersion) {
+/// returns true on success, false on failure
+bool performFirmwareUpdateOTA(String rmtVersion) {
     /// --- get update notes ---
     String updateNotes = fetchUpdateNotes();
 
@@ -108,40 +113,60 @@ void performFirmwareUpdateOTA(String rmtVersion) {
 
     int code = http.GET();
     if (code != HTTP_CODE_OK) {
-        error("OTA firmware download failed", false);
+        DBG_PRINT("OTA firmware download failed with HTTP code: ");
+        DBG_PRINTLN(code);
+        error("OTA firmware download failed (HTTP " + String(code) + ")", false);
         http.end();
+        return false;
     }
 
     int contentLength = http.getSize();
     
     if (contentLength <= 0) {
-        error("OTA invalid content length", false);
+        DBG_PRINT("OTA invalid content length: ");
+        DBG_PRINTLN(contentLength);
+        error("OTA invalid content length (" + String(contentLength) + ")", false);
         http.end();
+        return false;
     }
-    else if (!Update.begin(contentLength)) {
+
+    if (!Update.begin(contentLength)) {
+        DBG_PRINTLN("OTA firmware update could not begin");
         error("OTA firmware update start failed", false);
         http.end();
+        return false;
     }
 
     WiFiClient* stream = http.getStreamPtr();
     size_t written = Update.writeStream(*stream);
 
-    if (written != contentLength) {
-        error("OTA firmware incomplete write", false);
+    if (written != (size_t)contentLength) {
+        DBG_PRINT("OTA incomplete write: ");
+        DBG_PRINT(written);
+        DBG_PRINT(" / ");
+        DBG_PRINTLN(contentLength);
+        error("OTA firmware incomplete write (" + String(written) + "/" + String(contentLength) + " bytes)", false);
         Update.abort();
         http.end();
-    }
-    else if (!Update.end()) {
-        error("OTA firmware update end failed", false);
-        http.end();
-    }
-    else if (!Update.isFinished()) {
-        error("OTA firmware update not finished", false);
-        http.end();
+        return false;
     }
 
-    /// --- notify firmware update sucess via telegram ---
-    sendMsgToTelegram("Firmware updated sucessfully from " + FW_VERSION + " to " + rmtVersion);
+    if (!Update.end()) {
+        DBG_PRINTLN("OTA firmware update end failed");
+        error("OTA firmware update end failed", false);
+        http.end();
+        return false;
+    }
+
+    if (!Update.isFinished()) {
+        DBG_PRINTLN("OTA firmware update not finished");
+        error("OTA firmware update not finished", false);
+        http.end();
+        return false;
+    }
+
+    /// --- notify firmware update success via telegram ---
+    sendMsgToTelegram("Firmware updated successfully from " + FW_VERSION + " to " + rmtVersion);
 
     delay(1000);
 
@@ -153,10 +178,12 @@ void performFirmwareUpdateOTA(String rmtVersion) {
     http.end();
 
     ESP.restart();
+
+    return true;
 }
 
 
-/// === check for firmware update ===
+/// === check for firmware update with retry logic ===
 void checkForFirmwareUpdate() {
     DBG_PRINTLN("Checking for firmware update");
 
@@ -177,9 +204,37 @@ void checkForFirmwareUpdate() {
         DBG_PRINTLN("Firmware up to date");
         return;
     }
-    else {
-        DBG_PRINTLN("Firmware update available");
-        DBG_PRINTLN("Attempting firmware update");
-        performFirmwareUpdateOTA(remoteVersion);
+
+    DBG_PRINTLN("Firmware update available");
+
+    /// --- attempt firmware update with retries ---
+    for (int attempt = 1; attempt <= OTA_MAX_RETRIES; attempt++) {
+        DBG_PRINT("OTA update attempt ");
+        DBG_PRINT(attempt);
+        DBG_PRINT(" of ");
+        DBG_PRINTLN(OTA_MAX_RETRIES);
+
+        sendMsgToTelegram("OTA update attempt " + String(attempt) + "/" + String(OTA_MAX_RETRIES) + ": updating to " + remoteVersion);
+
+        bool success = performFirmwareUpdateOTA(remoteVersion);
+
+        /// --- if update succeeded, performFirmwareUpdateOTA restarts the device ---
+        /// --- reaching here means the update failed ---
+        if (!success) {
+            DBG_PRINT("OTA update attempt ");
+            DBG_PRINT(attempt);
+            DBG_PRINTLN(" failed");
+
+            if (attempt < OTA_MAX_RETRIES) {
+                DBG_PRINT("Retrying in ");
+                DBG_PRINT(OTA_RETRY_DELAY_MS / 1000);
+                DBG_PRINTLN(" seconds...");
+                delay(OTA_RETRY_DELAY_MS);
+            }
+        }
     }
+
+    /// --- all retry attempts exhausted ---
+    DBG_PRINTLN("OTA update failed after all retry attempts");
+    error("OTA update failed after " + String(OTA_MAX_RETRIES) + " attempts. Target version: " + remoteVersion, false);
 }

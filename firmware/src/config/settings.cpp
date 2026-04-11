@@ -61,3 +61,11 @@ const unsigned long allowedStandbyDuration  = 60000;
 
 /// --- minimum time to pass since last ring ---
 const unsigned long timeSinceLastRing       = 2000;
+
+
+// === OTA update retry settings ===
+/// --- maximum number of OTA update retry attempts ---
+const int OTA_MAX_RETRIES = 3;
+
+/// --- delay between OTA retry attempts in milliseconds ---
+const unsigned long OTA_RETRY_DELAY_MS = 5000;

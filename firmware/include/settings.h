@@ -36,3 +36,7 @@ extern const unsigned long warmUpPeriod;
 extern const unsigned long allowedStandbyDuration;
 
 extern const unsigned long timeSinceLastRing; 
+
+extern const int OTA_MAX_RETRIES;
+
+extern const unsigned long OTA_RETRY_DELAY_MS;
