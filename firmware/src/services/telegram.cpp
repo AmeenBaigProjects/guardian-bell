@@ -5,9 +5,6 @@
 // --- HTTP client for REST requests / file download ---
 #include <HTTPClient.h>
 
-// --- ESP-IDF certificate bundle for TLS validation ---
-#include "esp_crt_bundle.h"
-
 
 // === project headers ===
 // --- corresponding header ---
@@ -31,19 +28,13 @@
 WiFiClientSecure telegramClient;
 
 
-/// === configure TLS with certificate bundle ===
-static void initTelegramClientTLS() {
-    telegramClient.setCACertBundle(esp_crt_bundle_attach);
-}
-
-
 /// === send error message to telegram ===
 void sendMsgToTelegram(const String& msg) {
     /// --- ensure active WiFi connection ---
     initWifi();
 
-    /// --- enable TLS certificate validation ---
-    initTelegramClientTLS();
+    /// --- skip certificate validation ---
+    telegramClient.setInsecure();
 
     /// --- URL endpoint ---
     String url =
@@ -71,8 +62,8 @@ void sendMsgToTelegram(const String& msg) {
 
 /// === send error message to telegram with caption===
 void sendImageToTelegram(String caption) {
-    /// --- enable TLS certificate validation ---
-    initTelegramClientTLS();
+    /// --- skip certificate validation ---
+    telegramClient.setInsecure();
 
     /// --- open latest ring capture JPEG ---
     File file = SD_MMC.open("/IMG_" + lastRingCaptureFilename + ".jpg");

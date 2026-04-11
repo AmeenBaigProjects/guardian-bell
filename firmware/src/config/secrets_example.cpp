@@ -32,11 +32,8 @@ const char* WIFI_PASS_EXAMPLE   = "YOUR_WIFI_PASSWORD";
 /// --- MQTT host (home assistant) ---
 const char* MQTT_HOST_EXAMPLE   = "HOME_ASSISTANT_IP";
 
-/// --- MQTT broker port ---
-/// SECURITY: Use 8883 (TLS-encrypted MQTT) instead of 1883 (unencrypted)
-///           to protect credentials and messages in transit.
-///           Ensure your MQTT broker is configured for TLS on this port.
-const int   MQTT_PORT_EXAMPLE   = 8883;
+/// --- MQTT broker port (1883 = default unencrypted MQTT) ---
+const int   MQTT_PORT_EXAMPLE   = 1883;
 
 /// --- username of home assistant user: MQTT ---
 const char* MQTT_USER_EXAMPLE   = "USERNAME";

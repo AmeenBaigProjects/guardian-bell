@@ -1,10 +1,9 @@
 #pragma once
 #include <Arduino.h>
 #include <HTTPClient.h>
-#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
-extern WiFiClientSecure mqttWifiClient;
+extern WiFiClient wifiClient;
 
 extern PubSubClient mqtt;
 

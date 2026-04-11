@@ -41,7 +41,7 @@ void captureAndSaveImage(String filename) {
 
     /// --- set path of JPEG file ---
     String path = "/IMG_" + filename + ".jpg";
-    DBG_PRINTLN("Picture file name: " + path);
+    Serial.printf("Picture file name: %s\n", path.c_str());
 
     /// --- open file for writing ---
     fs::FS &fs = SD_MMC;
@@ -49,12 +49,12 @@ void captureAndSaveImage(String filename) {
 
     /// --- write captured frame to file as JPEG ---
     if (!file) {
-        DBG_PRINTLN("Failed to open file in writing mode");
+        Serial.printf("Failed to open file in writing mode");
         // error("Failed to open file in writing mode");
     } 
     else {
         file.write(fb->buf, fb->len);
-        DBG_PRINTLN("Saved: " + path);
+        Serial.printf("Saved: %s\n", path.c_str());
     }
 
     /// --- close file & return frame buffer ---
